@@ -57,84 +57,144 @@ let Rounding_Round2dp_RoundNumberTo2DP () =
 
 [<Test>]
 [<Category("Tuples Of Three")>]
-let TuplesOfThree_fst_RetrievesFirstValueFromTuple () =
+let TuplesOfThree_first_RetrievesFirstValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12
 
     // Act
-    let result = TuplesOfThree.fst tuple
+    let result = Tuples.TuplesOfThree.first tuple
 
     // Assert
     Assert.AreEqual(10, result)
 
 [<Test>]
 [<Category("Tuples Of Three")>]
-let TuplesOfThree_snd_RetrievesSecondValueFromTuple () =
+let TuplesOfThree_second_RetrievesSecondValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12
 
     // Act
-    let result = TuplesOfThree.snd tuple
+    let result = Tuples.TuplesOfThree.second tuple
 
     // Assert
     Assert.AreEqual(11, result)
 
 [<Test>]
 [<Category("Tuples Of Three")>]
-let TuplesOfThree_thrd_RetrievesThirdValueFromTuple () =
+let TuplesOfThree_third_RetrievesThirdValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12
 
     // Act
-    let result = TuplesOfThree.thrd tuple
+    let result = Tuples.TuplesOfThree.third tuple
 
     // Assert
     Assert.AreEqual(12, result)
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_fst_RetrievesFirstValueFromTuple () =
+let TuplesOfFour_first_RetrievesFirstValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
     // Act
-    let result = TuplesOfFour.fst tuple
+    let result = Tuples.TuplesOfFour.first tuple
 
     // Assert
     Assert.AreEqual(10, result)
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_snd_RetrievesSecondValueFromTuple () =
+let TuplesOfFour_second_RetrievesSecondValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
     // Act
-    let result = TuplesOfFour.snd tuple
+    let result = Tuples.TuplesOfFour.second tuple
 
     // Assert
     Assert.AreEqual(11, result)
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_thrd_RetrievesThirdValueFromTuple () =
+let TuplesOfFour_third_RetrievesThirdValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
     // Act
-    let result = TuplesOfFour.thrd tuple
+    let result = Tuples.TuplesOfFour.third tuple
 
     // Assert
     Assert.AreEqual(12, result)
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_frth_RetrievesFourthValueFromTuple () =
+let TuplesOfFour_fourth_RetrievesFourthValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
     // Act
-    let result = TuplesOfFour.frth tuple
+    let result = Tuples.TuplesOfFour.fourth tuple
 
     // Assert
     Assert.AreEqual(13, result)
+
+[<Test>]
+[<Category("Tuples Of Five")>]
+let TuplesOfFive_first_RetrievesFirstValueFromTuple () =
+    // Arrange
+    let tuple = 10, 11, 12, 13, 14
+
+    // Act
+    let result = Tuples.TuplesOfFive.first tuple
+
+    // Assert
+    Assert.AreEqual(10, result)
+    
+[<Test>]
+[<Category("Tuples Of Five")>]
+let TuplesOfFive_second_RetrievesSecondValueFromTuple () =
+    // Arrange
+    let tuple = 10, 11, 12, 13, 14
+
+    // Act
+    let result = Tuples.TuplesOfFive.second tuple
+
+    // Assert
+    Assert.AreEqual(11, result)
+
+[<Test>]
+[<Category("Tuples Of Five")>]
+let TuplesOfFive_third_RetrievesThirdValueFromTuple () =
+    // Arrange
+    let tuple = 10, 11, 12, 13, 14
+
+    // Act
+    let result = Tuples.TuplesOfFive.third tuple
+
+    // Assert
+    Assert.AreEqual(12, result)
+
+[<Test>]
+[<Category("Tuples Of Five")>]
+let TuplesOfFive_fourth_RetrievesFourthValueFromTuple () =
+    // Arrange
+    let tuple = 10, 11, 12, 13, 14
+
+    // Act
+    let result = Tuples.TuplesOfFive.fourth tuple
+
+    // Assert
+    Assert.AreEqual(13, result)
+
+[<Test>]
+[<Category("Tuples Of Five")>]
+let TuplesOfFive_fifth_RetrievesFifthValueFromTuple () =
+    // Arrange
+    let tuple = 10, 11, 12, 13, 14
+
+    // Act
+    let result = Tuples.TuplesOfFive.fifth tuple
+
+    // Assert
+    Assert.AreEqual(14, result)
