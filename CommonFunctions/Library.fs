@@ -2,10 +2,31 @@
 
 open Common.Domain
 
+module Tuples =
+    module TuplesOfThree =
+        let first tuple = match tuple with | value, _, _ -> value
+        let second tuple = match tuple with | _, value, _ -> value
+        let third tuple = match tuple with | _, _, value -> value
+
+    module TuplesOfFour =
+        let first tuple = match tuple with | value, _, _, _ -> value
+        let second tuple = match tuple with | _, value, _, _ -> value
+        let third tuple = match tuple with | _, _, value, _ -> value
+        let fourth tuple = match tuple with | _, _, _, value -> value
+
+    module TuplesOfFive =
+        let first tuple = match tuple with | value, _, _, _, _ -> value
+        let second tuple = match tuple with | _, value, _, _, _ -> value
+        let third tuple = match tuple with | _, _, value, _, _ -> value
+        let fourth tuple = match tuple with | _, _, _, value, _ -> value
+        let fifth tuple = match tuple with | _, _, _, _, value -> value
+
+open Tuples
+
 module String =
     open System
 
-    let split (chars : char array) (options : StringSplitOptions) (str : string) =
+    let split (options : StringSplitOptions) (chars : char array) (str : string) =
         str.Split (chars, options)
 
 module Math =
@@ -54,27 +75,6 @@ module Math =
         
     let truncate (precision : int) (number : float) =
         rnd (RoundingType.Decimal RoundingBehaviour.Truncate) precision number
-
-module Tuples =
-    module TuplesOfThree =
-        let first tuple = match tuple with | value, _, _ -> value
-        let second tuple = match tuple with | _, value, _ -> value
-        let third tuple = match tuple with | _, _, value -> value
-
-    module TuplesOfFour =
-        let first tuple = match tuple with | value, _, _, _ -> value
-        let second tuple = match tuple with | _, value, _, _ -> value
-        let third tuple = match tuple with | _, _, value, _ -> value
-        let fourth tuple = match tuple with | _, _, _, value -> value
-
-    module TuplesOfFive =
-        let first tuple = match tuple with | value, _, _, _, _ -> value
-        let second tuple = match tuple with | _, value, _, _, _ -> value
-        let third tuple = match tuple with | _, _, value, _, _ -> value
-        let fourth tuple = match tuple with | _, _, _, value, _ -> value
-        let fifth tuple = match tuple with | _, _, _, _, value -> value
-
-open Tuples
 
 module private FileOperations =
     open System
@@ -133,9 +133,7 @@ module Csv =
                 | false ->
                     match isEscaped with
                     | true ->
-                        match char = ',' with
-                        | true  -> isEscaped, str + ",", strs
-                        | false -> isEscaped, str + string char, strs
+                        isEscaped, str + string char, strs
                     | false ->
                         match char <> ',' with
                         | true  -> isEscaped, str + string char, strs
