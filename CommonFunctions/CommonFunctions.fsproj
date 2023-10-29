@@ -9,6 +9,14 @@
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <Title>Common Functions</Title>
     <Authors>Jamie</Authors>
+    <PackageId>JPackages.Common.Functions</PackageId>
+    <PackageVersion>0.0.1</PackageVersion>
+    <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <PackageReleaseNotes>Initial version of package.
+
+- Includes basic rounding logic
+- Supports basic file operations with .csv files</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
