@@ -9,10 +9,11 @@
     <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
     <Title>Common Functions</Title>
     <Authors>Jamie</Authors>
-    <PackageId>JPackages.Common.Functions</PackageId>
+    <PackageId>JPackages.Common</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageVersion>0.0.1</PackageVersion>
     <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
-    <RepositoryType>Github</RepositoryType>
     <PackageReleaseNotes>Initial version of package.
 
 - Includes basic rounding logic
@@ -26,6 +27,7 @@
   <ItemGroup>
     <Compile Include="Domain.fs" />
     <Compile Include="Library.fs" />
+    <Content Include="Docs\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <ItemGroup>
