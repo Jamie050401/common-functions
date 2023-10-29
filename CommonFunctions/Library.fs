@@ -1,41 +1,6 @@
-﻿namespace CommonFunctions
+﻿namespace Common.Functions
 
-type ErrorType =
-    | Unhandled
-    | IO
-    | Value
-    | Argument
-
-// Error Codes:
-//   0 - Default
-//   1 - Unhandled
-//   2 - File already exists
-//   3 - File does not exist
-//   4 - File is empty
-//   5 - Not all values are unique
-//   6 - Invalid file type
-type Error =
-    { Code : int
-      Type : ErrorType
-      Message : string
-      InnerException : exn option }
-
-    static member Default = { Code = 0; Type = Unhandled; Message = ""; InnerException = None }
-    static member Unhandled ex = { Code = 1; Type = Unhandled; Message = "Unhandled exception"; InnerException = Some ex }
-
-[<RequireQualifiedAccess>]
-type Response =
-    | Success
-    | Failure of Error
-
-    static member Unhandled ex = Failure (Error.Unhandled ex)
-
-[<RequireQualifiedAccess>]
-type ResponseWithValue<'a> =
-    | Success of 'a
-    | Failure of Error
-
-    static member Unhandled ex = Failure (Error.Unhandled ex)
+open Common.Domain
 
 module String =
     open System
@@ -43,11 +8,52 @@ module String =
     let split (chars : char array) (options : StringSplitOptions) (str : string) =
         str.Split (chars, options)
 
-module Maths =
+module Math =
     open System
 
-    let round (number : float) (decimalPlaces : int) = Math.Round (number + 0.00000001, decimalPlaces)
-    let round2dp (number : float) = round number 2
+    let private rnd (``type`` : RoundingType) (precision : int) (number : float) =
+        let round number (precision : int) =
+            (floor ((abs number + 0.5 / 10.0 ** precision) * 10.0 ** precision)) / 10.0 ** precision
+            
+        let truncate number (precision : int) =
+            (floor (abs number * 10.0 ** precision)) / 10.0 ** precision
+        
+        let isRoundingReqd number (precision : int) =
+            abs number * 10.0 ** precision
+            |> fun value -> round (value - truncate value 0) 1 <> 0.0
+        
+        let roundUp number (precision : int) =
+            let isRoundingReqd = isRoundingReqd number precision
+            match isRoundingReqd with
+            | true  -> (ceil (abs number * 10.0 ** precision)) / 10.0 ** precision
+            | false -> number
+            
+        let roundDown number (precision : int) =
+            let isRoundingReqd = isRoundingReqd number precision
+            match isRoundingReqd with
+            | true  -> (floor (abs number * 10.0 ** precision)) / 10.0 ** precision
+            | false -> number
+        
+        match ``type`` with
+        | RoundingType.Decimal behaviour ->
+            match behaviour with
+            | RoundingBehaviour.Standard -> round number precision
+            | RoundingBehaviour.Truncate -> truncate number precision
+            | RoundingBehaviour.Up       -> roundUp number precision
+            | RoundingBehaviour.Down     -> roundDown number precision
+        | RoundingType.Significant behaviour ->
+            behaviour |> ignore
+            raise (NotImplementedException ())
+        |> fun rounded ->
+            match number < 0.0 with
+            | true  -> rounded * -1.0
+            | false -> rounded
+            
+    let round (precision : int) (number : float) =
+        rnd (RoundingType.Decimal RoundingBehaviour.Standard) precision number
+        
+    let truncate (precision : int) (number : float) =
+        rnd (RoundingType.Decimal RoundingBehaviour.Truncate) precision number
 
 module Tuples =
     module TuplesOfThree =
@@ -68,49 +74,73 @@ module Tuples =
         let fourth tuple = match tuple with | _, _, _, value, _ -> value
         let fifth tuple = match tuple with | _, _, _, _, value -> value
 
+open Tuples
+
 module private FileOperations =
     open System
     open System.IO
 
-    let readFile (file : string) =
+    let readFile (file : string) : string array =
         use sr = new StreamReader (file)
         let contents = sr.ReadToEnd ()
         contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
 
-    let readFileAsync (file : string) =
-        async {
-            use sr = new StreamReader (file)
-            let! contents = sr.ReadToEndAsync () |> Async.AwaitTask
-            return contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
-        }
+    let readFileAsync (file : string) : string array =
+        use sr = new StreamReader (file)
+        
+        let readAsync () =
+            async {
+                return! sr.ReadToEndAsync () |> Async.AwaitTask
+            }
+        
+        readAsync ()
         |> Async.RunSynchronously
+        |> fun contents ->
+            contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
 
     let writeFile (file : string) (lines : string array) =
         use sw = new StreamWriter (file)
         lines |> Array.iter sw.WriteLine
 
     let writeFileAsync (file : string) (lines : string array) =
-        async {
-            use sw = new StreamWriter (file)
-            for line in lines do
-                return! line |> sw.WriteLineAsync |> Async.AwaitTask
-        }
+        use sw = new StreamWriter (file)
+        
+        let writeAsync (line : string) =
+            async {
+                return! line |> sw.WriteLineAsync |> Async.AwaitTask   
+            }
+        
+        lines
+        |> Array.map writeAsync
+        |> Async.Sequential
         |> Async.RunSynchronously
+        |> ignore
 
-// TODO - Need to finish implementing 'writeFile' function
-// TODO - Need to implement 'tryWriteFile' function
-// TODO - Need to add unit tests to the Csv module
 module Csv =
     open System
     open System.IO
 
-    type CsvFile =
-        | WithHeaders of Map<string, string> array
-        | WithoutHeaders of string array array
-
-    // TODO - Enhance this function to account for escaped commas
     let private split (str : string) =
-        str |> String.split [| ',' |] StringSplitOptions.RemoveEmptyEntries
+        str.ToCharArray ()
+        |> ((false, "", Array.empty) |> Array.fold (fun (isEscaped, str, strs) char ->
+            match char |> Char.IsWhiteSpace with
+            | true ->
+                isEscaped, str, strs
+            | false ->
+                match char = '"' with
+                | true ->
+                    not isEscaped, str + "\"", strs
+                | false ->
+                    match isEscaped with
+                    | true ->
+                        match char = ',' with
+                        | true  -> isEscaped, str + ",", strs
+                        | false -> isEscaped, str + string char, strs
+                    | false ->
+                        match char <> ',' with
+                        | true  -> isEscaped, str + string char, strs
+                        | false -> isEscaped, "", Array.append strs [| str |]))
+        |> TuplesOfThree.third
 
     let createFile file overwrite =
         let filePath = (Directory.GetParent file).FullName
@@ -135,7 +165,7 @@ module Csv =
                     createFile file overwrite
                     Response.Success
                 | false ->
-                    let msg = $"Failed to create file '{file}' since it already exists"
+                    let msg = "Failed to create file" + file + "since it already exists"
                     Response.Failure { Code = 2; Type = IO; Message = msg; InnerException = None }
             | false ->
                 let msg = "Invalid file type supplied, only .csv files are supported by this function"
@@ -156,13 +186,13 @@ module Csv =
                 deleteFile file
                 Response.Success
             | false ->
-                let msg = $"Failed to delete file '{file}' since it does not exist"
+                let msg = "Failed to delete file" + file + "since it does not exist"
                 Response.Failure { Code = 3; Type = IO; Message = msg; InnerException = None }
         with
         | ex ->
             Response.Unhandled ex
 
-    let readFile file useAsync hasHeaders =
+    let readFile file useAsync =
         let read file =
             match useAsync with
             | true  -> FileOperations.readFileAsync file
@@ -171,78 +201,58 @@ module Csv =
         match File.Exists file with
         | true ->
             let contents = read file
-            match hasHeaders with
-            | true ->
-                match contents |> Array.isEmpty with
-                | true ->
-                    WithHeaders Array.empty
-                | false ->
-                    let headers = contents |> Array.head |> split
-                    match (headers |> Seq.distinct |> Seq.length) = (headers |> Array.length) with
-                    | true ->
-                        contents |> Array.tail
-                        |> Array.Parallel.map (fun content ->
-                            content
-                            |> split
-                            |> Array.Parallel.mapi (fun index element ->
-                                headers[index], element)
-                            |> Map.ofArray)
-                        |> WithHeaders
-                    | false ->
-                        WithHeaders Array.empty
-            | false ->
-                contents
-                |> Array.Parallel.map split
-                |> WithoutHeaders
+            contents
+            |> Array.Parallel.map split
         | false ->
-            match hasHeaders with
-            | true  -> WithHeaders Array.empty
-            | false -> WithoutHeaders Array.empty
+            Array.empty
 
-    let tryReadFile file useAsync hasHeaders =
+    let tryReadFile file useAsync =
         try
             match File.Exists file with
             | true ->
-                let contents = readFile file useAsync hasHeaders
-                match contents with
-                | WithHeaders inner ->
-                    match inner |> Array.isEmpty with
-                    | true ->
-                        let fileSize = (FileInfo file).Length
-                        match fileSize > 0L with
-                        | true ->
-                            let msg = $"Failed to read file '{file}' since the column headings are not unique"
-                            ResponseWithValue.Failure { Code = 5; Type = IO; Message = msg; InnerException = None }
-                        | false ->
-                            ResponseWithValue.Success contents
-                    | false ->
-                        ResponseWithValue.Success contents
-                | WithoutHeaders _ ->
-                    ResponseWithValue.Success contents
+                let contents = readFile file useAsync
+                ResponseWithValue.Success contents
             | false ->
-                let msg = $"Failed to read file '{file}' since it does not exist"
+                let msg = "Failed to read file" + file + "since it does not exist"
                 ResponseWithValue.Failure { Code = 3; Type = IO; Message = msg; InnerException = None }
         with
         | ex ->
             ResponseWithValue<_>.Unhandled ex
 
+    let private getLines (contents : 'a array array) =
+        contents |> Array.map (fun columns ->
+            columns |> ("" |> Array.fold (fun str column ->
+                match str |> String.IsNullOrEmpty with
+                | true  -> column.ToString ()
+                | false -> str + "," + column.ToString ())))
+    
+    let private write file lines useAsync =
+        match useAsync with
+        | true  -> FileOperations.writeFileAsync file lines
+        | false -> FileOperations.writeFile file lines
+    
     let writeFile contents file useAsync overwrite =
-        let getLines () =
-            match contents with
-            | WithHeaders inner ->
-                raise (NotImplementedException ())
-            | WithoutHeaders inner ->
-                raise (NotImplementedException ())
-
-        let write file lines =
-            match useAsync with
-            | true  -> FileOperations.writeFileAsync file lines
-            | false -> FileOperations.writeFile file lines
-
         match File.Exists file && overwrite with
         | true  -> File.Delete file
         | false -> ()
 
         match File.Exists file with
         | true  -> ()
-        | false -> write file (getLines ())
+        | false -> write file (getLines contents) useAsync
+        
+    let tryWriteFile contents file useAsync overwrite =
+        try
+            match File.Exists file && overwrite with
+            | true  -> File.Delete file
+            | false -> ()
+            
+            match File.Exists file with
+            | true  ->
+                let msg = "Failed to write file" + file + "since it already exists"
+                Response.Failure { Code = 2; Type = IO; Message = msg; InnerException = None }
+            | false ->
+                write file (getLines contents) useAsync
+                Response.Success
+        with
+        | ex ->
+            Response.Unhandled ex

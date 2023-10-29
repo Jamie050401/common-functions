@@ -1,7 +1,8 @@
-module CommonFunctions.Tests
+module Common.Functions.Tests
 
 open NUnit.Framework
-open CommonFunctions
+
+open Common.Functions
 
 //[<SetUp>]
 //let Setup () =
@@ -14,7 +15,7 @@ let Rounding_Round_RoundNumberTo2DP () =
     let number = 0.885
 
     // Act
-    let result = Maths.round number 2
+    let result = Math.round 2 number
 
     // Assert
     Assert.AreEqual(0.89, result)
@@ -26,7 +27,7 @@ let Rounding_Round_RoundNumberTo3DP () =
     let number = 0.8854
 
     // Act
-    let result = Maths.round number 3
+    let result = Math.round 3 number
 
     // Assert
     Assert.AreEqual(0.885, result)
@@ -38,22 +39,22 @@ let Rounding_Round_RoundNumberTo4DP () =
     let number = 0.88546
 
     // Act
-    let result = Maths.round number 4
+    let result = Math.round 4 number
 
     // Assert
     Assert.AreEqual(0.8855, result)
-
+    
 [<Test>]
 [<Category("Rounding")>]
-let Rounding_Round2dp_RoundNumberTo2DP () =
+let Rounding_Round_RoundNumberTo2DPWithTrailingNines () =
     // Arrange
-    let number = 0.88546
+    let number = 0.884999999
 
     // Act
-    let result = Maths.round2dp number
+    let result = Math.round 2 number
 
     // Assert
-    Assert.AreEqual(0.89, result)
+    Assert.AreEqual(0.88, result)
 
 [<Test>]
 [<Category("Tuples Of Three")>]
