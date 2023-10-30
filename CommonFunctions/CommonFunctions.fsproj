@@ -14,7 +14,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageVersion>0.0.3</PackageVersion>
     <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>v0.0.3
+- Added functions to support basic file operations on .xml files</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

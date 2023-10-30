@@ -48,3 +48,23 @@ type RoundingBehaviour =
 type RoundingType =
     | Decimal of RoundingBehaviour
     | Significant of RoundingBehaviour
+
+module Xml =
+    open System.Xml.XPath
+    
+    type XmlAttribute =
+        { Name : string
+          Value : string }
+    
+    type XmlNode =
+        { Namespace : string
+          Type : XPathNodeType
+          FullName : string
+          LocalName : string
+          Value : string
+          Attributes : XmlAttribute list
+          Children : XmlNode list }
+    
+    type XmlFile =
+        { Path : string
+          Nodes : XmlNode list }

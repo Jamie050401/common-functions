@@ -21,8 +21,6 @@ module Tuples =
         let fourth tuple = match tuple with | _, _, _, value, _ -> value
         let fifth tuple = match tuple with | _, _, _, _, value -> value
 
-open Tuples
-
 module String =
     open System
 
@@ -76,7 +74,7 @@ module Math =
     let truncate (precision : int) (number : float) =
         rnd (RoundingType.Decimal RoundingBehaviour.Truncate) precision number
 
-module private FileOperations =
+module private File =
     open System
     open System.IO
 
@@ -116,6 +114,9 @@ module private FileOperations =
         |> Async.RunSynchronously
         |> ignore
 
+module Arguments =
+    ()
+
 module Csv =
     open System
     open System.IO
@@ -138,7 +139,7 @@ module Csv =
                         match char <> ',' with
                         | true  -> isEscaped, str + string char, strs
                         | false -> isEscaped, "", Array.append strs [| str |]))
-        |> TuplesOfThree.third
+        |> Tuples.TuplesOfThree.third
 
     let createFile file overwrite =
         let filePath = (Directory.GetParent file).FullName
@@ -193,8 +194,8 @@ module Csv =
     let readFile file useAsync =
         let read file =
             match useAsync with
-            | true  -> FileOperations.readFileAsync file
-            | false -> FileOperations.readFile file
+            | true  -> File.readFileAsync file
+            | false -> File.readFile file
 
         match File.Exists file with
         | true ->
@@ -226,8 +227,8 @@ module Csv =
     
     let private write file lines useAsync =
         match useAsync with
-        | true  -> FileOperations.writeFileAsync file lines
-        | false -> FileOperations.writeFile file lines
+        | true  -> File.writeFileAsync file lines
+        | false -> File.writeFile file lines
     
     let writeFile contents file useAsync overwrite =
         match File.Exists file && overwrite with
@@ -254,3 +255,78 @@ module Csv =
         with
         | ex ->
             Response.Unhandled ex
+
+module Xml =
+    open System
+    open System.IO
+    open System.Xml.XPath
+    
+    open JPackages.Common.Domain.Xml
+    
+    let private getFullName (parentNodes : XmlNode list) (localName : string) =
+        match parentNodes |> List.isEmpty with
+        | true  -> localName
+        | false -> (parentNodes |> List.head).FullName + "." + localName
+    
+    let private getAttribute (xNavigator : XPathNavigator) =
+        { Name = xNavigator.LocalName
+          Value = xNavigator.Value }
+    
+    let private getAttributes (xNavigator : XPathNavigator) =
+        let rec readAttributes (attributes : XmlAttribute list) =
+            match xNavigator.MoveToNextAttribute () with
+            | false -> attributes
+            | true  -> readAttributes (getAttribute xNavigator :: attributes)
+
+        readAttributes List.empty
+    
+    let getNode (parentNodes : XmlNode list) (childNodes : XmlNode list) (xNavigator : XPathNavigator) =
+        let fullName = getFullName parentNodes xNavigator.LocalName
+        let attributes = getAttributes (xNavigator.CreateNavigator ())
+        
+        { Namespace = xNavigator.NamespaceURI
+          Type = xNavigator.NodeType
+          FullName = fullName
+          LocalName = xNavigator.LocalName
+          Value = xNavigator.Value
+          Attributes = attributes
+          Children = childNodes }
+    
+    let private addNodes (parentNodes : XmlNode list) (childNodes : XmlNode list) (nodes : XmlNode list) (xNavigator : XPathNavigator) =
+        let newNode = getNode parentNodes childNodes xNavigator
+        newNode :: nodes
+    
+    let readFile (file : string) : XmlFile =
+        let rec readXml (parentNodes : XmlNode list) (nodes : XmlNode list) (xNavigator : XPathNavigator) =
+            let moveToNext newNodes =
+                match xNavigator.MoveToNext () with
+                | true  -> readXml parentNodes newNodes xNavigator
+                | false -> nodes
+            
+            match xNavigator.HasChildren with
+            | false ->
+                let newNodes = addNodes parentNodes List.empty nodes xNavigator
+                moveToNext newNodes
+            | true ->
+                let newParentNodes = getNode parentNodes List.empty xNavigator :: parentNodes
+                let childNodes = readXml newParentNodes List.empty (xNavigator.CreateNavigator ())
+                let newNodes = addNodes parentNodes childNodes nodes xNavigator
+                moveToNext newNodes
+        
+        use sr = new StreamReader (file)
+        let xDoc = XPathDocument sr
+        let xNavigator = xDoc.CreateNavigator ()
+        xNavigator.MoveToRoot ()
+
+        let nodes = readXml List.empty List.empty xNavigator
+        { Path = file
+          Nodes = nodes }
+
+    let private tryReadFile file =
+        raise (NotImplementedException ())
+    
+    let private writeFile contents file overwrite =
+        raise (NotImplementedException ())
+        
+    let private tryWriteFile contents file overwrite =
+        raise (NotImplementedException ())
