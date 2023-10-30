@@ -12,12 +12,9 @@
     <PackageId>JPackages.Common</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageVersion>0.0.2</PackageVersion>
+    <PackageVersion>0.0.3</PackageVersion>
     <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
-    <PackageReleaseNotes>Initial version of package.
-
-- Includes basic rounding logic
-- Supports basic file operations with .csv files</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

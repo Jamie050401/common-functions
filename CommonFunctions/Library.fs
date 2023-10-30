@@ -1,6 +1,6 @@
-﻿namespace Common.Functions
+﻿namespace JPackages.Common.Functions
 
-open Common.Domain
+open JPackages.Common.Domain
 
 module Tuples =
     module TuplesOfThree =

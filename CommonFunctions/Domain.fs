@@ -1,4 +1,4 @@
-﻿namespace Common.Domain
+﻿namespace JPackages.Common.Domain
 
 type ErrorType =
     | Unhandled

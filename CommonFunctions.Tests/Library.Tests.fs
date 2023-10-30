@@ -1,8 +1,8 @@
-module Common.Functions.Tests
+module JPackages.Common.Functions.Tests
 
 open NUnit.Framework
 
-open Common.Functions
+open JPackages.Common.Functions
 
 //[<SetUp>]
 //let Setup () =
