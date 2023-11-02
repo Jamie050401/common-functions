@@ -15,7 +15,7 @@
     <PackageVersion>0.0.3</PackageVersion>
     <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
     <PackageReleaseNotes>v0.0.3
-- Added functions to support basic file operations on .xml files</PackageReleaseNotes>
+- Added support for basic file operations on .xml files</PackageReleaseNotes>
     <RootNamespace>CommonFunctions</RootNamespace>
   </PropertyGroup>
 

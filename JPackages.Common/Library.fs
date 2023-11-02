@@ -366,10 +366,10 @@ module Xml =
         | true  -> ()
         | false ->
             let contents =
-                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + convertToString "" nodes
+                convertToString "" nodes
                 |> XDocument.Parse
                 |> fun xDoc ->
-                    xDoc.ToString () + Environment.NewLine
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine + xDoc.ToString () + Environment.NewLine
             File.write file contents
 
     let private tryWriteFile contents file overwrite =
