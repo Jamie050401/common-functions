@@ -162,41 +162,10 @@ module Csv =
         | false ->
             File.Create file |> ignore
 
-    let tryCreateFile (file : string) overwrite =
-        try
-            match file.EndsWith ".csv" with
-            | true ->
-                match File.Exists file && overwrite with
-                | true ->
-                    createFile file overwrite
-                    Response.Success
-                | false ->
-                    let msg = "Failed to create file" + file + "since it already exists"
-                    Response.Failure { Code = 2; Type = IO; Message = msg; InnerException = None }
-            | false ->
-                let msg = "Invalid file type supplied, only .csv files are supported by this function"
-                Response.Failure { Code = 6; Type = IO; Message = msg; InnerException = None }
-        with
-        | ex ->
-            Response.Unhandled ex
-
     let deleteFile file =
         match File.Exists file with
         | true  -> File.Delete file
         | false -> ()
-
-    let tryDeleteFile file =
-        try
-            match File.Exists file with
-            | true ->
-                deleteFile file
-                Response.Success
-            | false ->
-                let msg = "Failed to delete file" + file + "since it does not exist"
-                Response.Failure { Code = 3; Type = IO; Message = msg; InnerException = None }
-        with
-        | ex ->
-            Response.Unhandled ex
 
     let readFile file =
         match File.Exists file with
@@ -206,19 +175,6 @@ module Csv =
             |> Array.Parallel.map split
         | false ->
             Array.empty
-
-    let tryReadFile file =
-        try
-            match File.Exists file with
-            | true ->
-                let contents = File.readFile file
-                ResponseWithValue.Success contents
-            | false ->
-                let msg = "Failed to read file" + file + "since it does not exist"
-                ResponseWithValue.Failure { Code = 3; Type = IO; Message = msg; InnerException = None }
-        with
-        | ex ->
-            ResponseWithValue<_>.Unhandled ex
 
     let private getLines (contents : 'a array array) =
         contents |> Array.map (fun columns ->
@@ -235,23 +191,6 @@ module Csv =
         match File.Exists file with
         | true  -> ()
         | false -> File.writeFile file (getLines contents)
-        
-    let tryWriteFile contents file overwrite =
-        try
-            match File.Exists file && overwrite with
-            | true  -> File.Delete file
-            | false -> ()
-            
-            match File.Exists file with
-            | true  ->
-                let msg = "Failed to write file" + file + "since it already exists"
-                Response.Failure { Code = 2; Type = IO; Message = msg; InnerException = None }
-            | false ->
-                File.writeFile file (getLines contents)
-                Response.Success
-        with
-        | ex ->
-            Response.Unhandled ex
 
 module Xml =
     open System
@@ -340,9 +279,6 @@ module Xml =
                     moveToNext partialFullName newNodes
         
         readXml xNavigator "" List.empty
-
-    let private tryReadFile file =
-        raise (NotImplementedException ())
     
     let writeFile file (nodes : Xml.Node list) overwrite =
         let rec convertToString (contents : string) (nodes : Xml.Node list) =
@@ -371,6 +307,3 @@ module Xml =
                 |> fun xDoc ->
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine + xDoc.ToString () + Environment.NewLine
             File.write file contents
-
-    let private tryWriteFile contents file overwrite =
-        raise (NotImplementedException ())
