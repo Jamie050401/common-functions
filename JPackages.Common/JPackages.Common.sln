@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CommonFunctions", "CommonFunctions.fsproj", "{21A95FAC-5355-44C4-A185-6F03990E9422}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JPackages.Common", "JPackages.Common.fsproj", "{21A95FAC-5355-44C4-A185-6F03990E9422}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "CommonFunctions.Tests", "..\CommonFunctions.Tests\CommonFunctions.Tests.fsproj", "{574A957E-49DA-4B62-889F-4F8261B41649}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JPackages.Common.Tests", "..\JPackages.Common.Tests\JPackages.Common.Tests.fsproj", "{574A957E-49DA-4B62-889F-4F8261B41649}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
