@@ -5,6 +5,7 @@
 
     <IsPackable>false</IsPackable>
     <GenerateProgramFile>false</GenerateProgramFile>
+    <RootNamespace>CommonFunctions.Tests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CommonFunctions\CommonFunctions.fsproj" />
+    <ProjectReference Include="..\JPackages.Common\JPackages.Common.fsproj" />
   </ItemGroup>
 
 </Project>
