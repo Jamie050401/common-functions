@@ -2,11 +2,14 @@ module JPackages.Common.Functions.Tests
 
 open System
 open System.IO
+open System.Xml.XPath
 open NUnit.Framework
 
+open JPackages.Common.Domain
 open JPackages.Common.Functions
 
 let xmlUnitTest1 = Directory.GetCurrentDirectory () + "\\XmlUnitTest1.xml"
+let xmlUnitTest2 = Directory.GetCurrentDirectory () + "\\XmlUnitTest2.xml"
 
 [<SetUp>]
 let Setup () =
@@ -23,6 +26,10 @@ let Setup () =
 """
     use sw = new StreamWriter (xmlUnitTest1)
     sw.Write xmlUnitTest1Contents
+    
+    match File.Exists xmlUnitTest2 with
+    | true  -> File.Delete xmlUnitTest2
+    | false -> ()
 
 [<Test>]
 [<Category("Rounding")>]
@@ -225,3 +232,38 @@ let Xml_ReadFile_ReadsFileFromDisk () =
     
     Assert.AreEqual ("Test.Node", node.FullName)
     Assert.True node.HasAttributes
+    
+[<Test>]
+[<Category("Xml")>]
+let Xml_WriteFile_WritesFileToDisk () =
+    let (contents : Xml.Node list) =
+        [{ Namespace = ""
+           NamespacePrefix = ""
+           FullName = ""
+           LocalName = ""
+           Value = ""
+           Attributes = Map.empty
+           Children = [
+               { Namespace = ""
+                 NamespacePrefix = ""
+                 FullName = "Test"
+                 LocalName = "Test"
+                 Value = ""
+                 Attributes = Map.empty
+                 Children = [
+                     { Namespace = ""
+                       NamespacePrefix = ""
+                       FullName = "Test.Value"
+                       LocalName = "Value"
+                       Value = "0.0"
+                       Attributes = Map [ "attribute1", "\"1.0\""; "attribute2", "\"2.0\"" ]
+                       Children = List.empty
+                       NodeType = XPathNodeType.Element }
+                 ]
+                 NodeType = XPathNodeType.Element }
+           ]
+           NodeType = XPathNodeType.Root }]
+    
+    Xml.writeFile xmlUnitTest2 contents true
+    
+    Assert.True (File.Exists xmlUnitTest2)

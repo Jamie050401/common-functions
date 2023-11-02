@@ -26,6 +26,9 @@ module String =
 
     let split (options : StringSplitOptions) (chars : char array) (str : string) =
         str.Split (chars, options)
+        
+    let padLeft (padding : int) (str : string) =
+        str.PadLeft ((str |> String.length) + padding)
 
 module Math =
     open System
@@ -83,36 +86,40 @@ module private File =
         let contents = sr.ReadToEnd ()
         contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
 
-    let readFileAsync (file : string) : string array =
-        use sr = new StreamReader (file)
-        
-        let readAsync () =
-            async {
-                return! sr.ReadToEndAsync () |> Async.AwaitTask
-            }
-        
-        readAsync ()
-        |> Async.RunSynchronously
-        |> fun contents ->
-            contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
+    //let readFileAsync (file : string) : string array =
+    //    use sr = new StreamReader (file)
+    //    
+    //    let readAsync () =
+    //        async {
+    //            return! sr.ReadToEndAsync () |> Async.AwaitTask
+    //        }
+    //    
+    //    readAsync ()
+    //    |> Async.RunSynchronously
+    //    |> fun contents ->
+    //        contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
 
+    let write (file : string) (contents : string) =
+        use sw = new StreamWriter (file)
+        contents |> sw.Write
+    
     let writeFile (file : string) (lines : string array) =
         use sw = new StreamWriter (file)
         lines |> Array.iter sw.WriteLine
 
-    let writeFileAsync (file : string) (lines : string array) =
-        use sw = new StreamWriter (file)
-        
-        let writeAsync (line : string) =
-            async {
-                return! line |> sw.WriteLineAsync |> Async.AwaitTask   
-            }
-        
-        lines
-        |> Array.map writeAsync
-        |> Async.Sequential
-        |> Async.RunSynchronously
-        |> ignore
+    //let writeFileAsync (file : string) (lines : string array) =
+    //    use sw = new StreamWriter (file)
+    //    
+    //    let writeAsync (line : string) =
+    //        async {
+    //            return! line |> sw.WriteLineAsync |> Async.AwaitTask   
+    //        }
+    //    
+    //    lines
+    //    |> Array.map writeAsync
+    //    |> Async.Sequential
+    //    |> Async.RunSynchronously
+    //    |> ignore
 
 module Arguments =
     ()
@@ -191,25 +198,20 @@ module Csv =
         | ex ->
             Response.Unhandled ex
 
-    let readFile file useAsync =
-        let read file =
-            match useAsync with
-            | true  -> File.readFileAsync file
-            | false -> File.readFile file
-
+    let readFile file =
         match File.Exists file with
         | true ->
-            let contents = read file
+            let contents = File.readFile file
             contents
             |> Array.Parallel.map split
         | false ->
             Array.empty
 
-    let tryReadFile file useAsync =
+    let tryReadFile file =
         try
             match File.Exists file with
             | true ->
-                let contents = readFile file useAsync
+                let contents = File.readFile file
                 ResponseWithValue.Success contents
             | false ->
                 let msg = "Failed to read file" + file + "since it does not exist"
@@ -225,21 +227,16 @@ module Csv =
                 | true  -> column.ToString ()
                 | false -> str + "," + column.ToString ())))
     
-    let private write file lines useAsync =
-        match useAsync with
-        | true  -> File.writeFileAsync file lines
-        | false -> File.writeFile file lines
-    
-    let writeFile contents file useAsync overwrite =
+    let writeFile contents file overwrite =
         match File.Exists file && overwrite with
         | true  -> File.Delete file
         | false -> ()
 
         match File.Exists file with
         | true  -> ()
-        | false -> write file (getLines contents) useAsync
+        | false -> File.writeFile file (getLines contents)
         
-    let tryWriteFile contents file useAsync overwrite =
+    let tryWriteFile contents file overwrite =
         try
             match File.Exists file && overwrite with
             | true  -> File.Delete file
@@ -250,7 +247,7 @@ module Csv =
                 let msg = "Failed to write file" + file + "since it already exists"
                 Response.Failure { Code = 2; Type = IO; Message = msg; InnerException = None }
             | false ->
-                write file (getLines contents) useAsync
+                File.writeFile file (getLines contents)
                 Response.Success
         with
         | ex ->
@@ -258,6 +255,8 @@ module Csv =
 
 module Xml =
     open System
+    open System.IO
+    open System.Xml.Linq
     open System.Xml.XPath
     
     let private getValue (xNavigator : XPathNavigator) =
@@ -345,8 +344,33 @@ module Xml =
     let private tryReadFile file =
         raise (NotImplementedException ())
     
-    let private writeFile contents file overwrite =
-        raise (NotImplementedException ())
+    let writeFile file (nodes : Xml.Node list) overwrite =
+        let rec convertToString (contents : string) (nodes : Xml.Node list) =
+            match nodes with
+            | node :: nodes ->
+                match node.HasChildren with
+                | false ->
+                    let contents = contents + node.ToString ""
+                    convertToString contents nodes
+                | true  ->
+                    let children = node.Children |> convertToString ""
+                    let contents =
+                        match (node.NodeType = XPathNodeType.Root) with
+                        | true  -> contents + children
+                        | false -> contents + node.ToString children
+                    convertToString contents nodes
+            | [] ->
+                contents
         
+        match File.Exists file && not overwrite with
+        | true  -> ()
+        | false ->
+            let contents =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + convertToString "" nodes
+                |> XDocument.Parse
+                |> fun xDoc ->
+                    xDoc.ToString () + Environment.NewLine
+            File.write file contents
+
     let private tryWriteFile contents file overwrite =
         raise (NotImplementedException ())

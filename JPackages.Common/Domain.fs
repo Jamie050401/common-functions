@@ -51,7 +51,7 @@ type RoundingType =
 
 module Xml =
     open System.Xml.XPath
-    
+
     type Node =
         { Namespace : string
           NamespacePrefix : string
@@ -67,3 +67,12 @@ module Xml =
             
         member this.HasChildren =
             not (this.Children |> List.isEmpty)
+            
+        member this.ToString (children : string) =
+            let attributes =
+                match this.Attributes |> Map.isEmpty with
+                | true  -> ""
+                | false ->
+                    this.Attributes |> (" " |> Map.fold (fun attributes attributeName attributeValue ->
+                        attributes + attributeName + "=" + attributeValue + " "))
+            "<" + this.LocalName + attributes + ">" + this.Value + children + "</" + this.LocalName + ">"
