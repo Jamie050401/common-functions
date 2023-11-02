@@ -258,69 +258,90 @@ module Csv =
 
 module Xml =
     open System
-    open System.IO
     open System.Xml.XPath
     
-    open JPackages.Common.Domain.Xml
+    let private getValue (xNavigator : XPathNavigator) =
+        let innerXml = xNavigator.InnerXml
+        match innerXml.Contains "<" with
+        | false -> xNavigator.Value
+        | true  ->
+            match innerXml.IndexOf "<" > 0 with
+            | false -> ""
+            | true  ->
+                innerXml.ToCharArray ()
+                |> (("", false)
+                |> Array.fold (fun (newValue, foundChild) char ->
+                    match foundChild with
+                    | true  -> newValue, foundChild
+                    | false ->
+                        let hasFoundChild = (char = '<')
+                        match hasFoundChild with
+                        | true  -> newValue, hasFoundChild
+                        | false -> newValue + string char, hasFoundChild))
+                |> fst
     
-    let private getFullName (parentNodes : XmlNode list) (localName : string) =
-        match parentNodes |> List.isEmpty with
-        | true  -> localName
-        | false -> (parentNodes |> List.head).FullName + "." + localName
-    
-    let private getAttribute (xNavigator : XPathNavigator) =
-        { Name = xNavigator.LocalName
-          Value = xNavigator.Value }
-    
-    let private getAttributes (xNavigator : XPathNavigator) =
-        let rec readAttributes (attributes : XmlAttribute list) =
-            match xNavigator.MoveToNextAttribute () with
-            | false -> attributes
-            | true  -> readAttributes (getAttribute xNavigator :: attributes)
-
-        readAttributes List.empty
-    
-    let getNode (parentNodes : XmlNode list) (childNodes : XmlNode list) (xNavigator : XPathNavigator) =
-        let fullName = getFullName parentNodes xNavigator.LocalName
-        let attributes = getAttributes (xNavigator.CreateNavigator ())
+    let private getAttributes (xNavigator : XPathNavigator) : Map<string, string> =
+        let xAttrNavigator = xNavigator.CreateNavigator ()
         
+        let rec readAttributes (attributes : Map<string, string>) =
+            match xAttrNavigator.MoveToNextAttribute () with
+            | false ->
+                match xAttrNavigator.MoveToFirstAttribute () with
+                | false -> attributes
+                | true  -> (attributes |> Map.add xAttrNavigator.LocalName xAttrNavigator.Value) |> readAttributes
+            | true  ->
+                (attributes |> Map.add xAttrNavigator.LocalName xAttrNavigator.Value) |> readAttributes
+        
+        readAttributes Map.empty
+    
+    let private getNode (xNavigator : XPathNavigator) (partialFullName : string) (childNodes : Xml.Node list) : Xml.Node =
         { Namespace = xNavigator.NamespaceURI
-          Type = xNavigator.NodeType
-          FullName = fullName
+          NamespacePrefix = xNavigator.Prefix
+          FullName =
+              match partialFullName |> String.IsNullOrWhiteSpace with
+              | true  -> xNavigator.Name
+              | false -> partialFullName + "." + xNavigator.Name
           LocalName = xNavigator.LocalName
-          Value = xNavigator.Value
-          Attributes = attributes
-          Children = childNodes }
+          Value = getValue xNavigator
+          Attributes = getAttributes xNavigator
+          Children = childNodes
+          NodeType = xNavigator.NodeType }
     
-    let private addNodes (parentNodes : XmlNode list) (childNodes : XmlNode list) (nodes : XmlNode list) (xNavigator : XPathNavigator) =
-        let newNode = getNode parentNodes childNodes xNavigator
-        newNode :: nodes
-    
-    let readFile (file : string) : XmlFile =
-        let rec readXml (parentNodes : XmlNode list) (nodes : XmlNode list) (xNavigator : XPathNavigator) =
-            let moveToNext newNodes =
+    // TODO - Need to fix attribute functionality
+    let readFile (file : string) =
+        let xDoc = XPathDocument file
+        let xNavigator = xDoc.CreateNavigator ()
+        
+        let rec readXml (xNavigator : XPathNavigator) (partialFullName : string) (nodes : Xml.Node list) : Xml.Node list =
+            let moveToNext partialFullName newNodes =
                 match xNavigator.MoveToNext () with
-                | true  -> readXml parentNodes newNodes xNavigator
-                | false -> nodes
+                | false -> newNodes
+                | true  -> readXml xNavigator partialFullName newNodes
             
             match xNavigator.HasChildren with
             | false ->
-                let newNodes = addNodes parentNodes List.empty nodes xNavigator
-                moveToNext newNodes
-            | true ->
-                let newParentNodes = getNode parentNodes List.empty xNavigator :: parentNodes
-                let childNodes = readXml newParentNodes List.empty (xNavigator.CreateNavigator ())
-                let newNodes = addNodes parentNodes childNodes nodes xNavigator
-                moveToNext newNodes
+                let newNodes =
+                    match (xNavigator.NodeType = XPathNodeType.Element) with
+                    | false -> nodes
+                    | true  -> getNode xNavigator partialFullName List.empty :: nodes
+                moveToNext partialFullName newNodes
+            | true  ->
+                let xChildNavigator = xNavigator.CreateNavigator ()
+                xChildNavigator.MoveToFirstChild () |> ignore
+                match (xChildNavigator.NodeType = XPathNodeType.Element) with
+                | false ->
+                    let newNodes = getNode xNavigator partialFullName List.empty :: nodes
+                    moveToNext partialFullName newNodes
+                | true  ->
+                    let newPartialFullName =
+                        match partialFullName |> String.IsNullOrWhiteSpace with
+                        | true  -> partialFullName + xNavigator.LocalName
+                        | false -> partialFullName + "." + xNavigator.LocalName
+                    let childNodes = readXml xChildNavigator newPartialFullName List.empty
+                    let newNodes = getNode xNavigator partialFullName childNodes :: nodes
+                    moveToNext partialFullName newNodes
         
-        use sr = new StreamReader (file)
-        let xDoc = XPathDocument sr
-        let xNavigator = xDoc.CreateNavigator ()
-        xNavigator.MoveToRoot ()
-
-        let nodes = readXml List.empty List.empty xNavigator
-        { Path = file
-          Nodes = nodes }
+        readXml xNavigator "" List.empty
 
     let private tryReadFile file =
         raise (NotImplementedException ())

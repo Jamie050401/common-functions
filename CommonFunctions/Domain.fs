@@ -52,19 +52,18 @@ type RoundingType =
 module Xml =
     open System.Xml.XPath
     
-    type XmlAttribute =
-        { Name : string
-          Value : string }
-    
-    type XmlNode =
+    type Node =
         { Namespace : string
-          Type : XPathNodeType
+          NamespacePrefix : string
           FullName : string
           LocalName : string
           Value : string
-          Attributes : XmlAttribute list
-          Children : XmlNode list }
-    
-    type XmlFile =
-        { Path : string
-          Nodes : XmlNode list }
+          Attributes : Map<string, string>
+          Children : Node list
+          NodeType : XPathNodeType }
+        
+        member this.HasAttributes =
+            not (this.Attributes |> Map.isEmpty)
+            
+        member this.HasChildren =
+            not (this.Children |> List.isEmpty)

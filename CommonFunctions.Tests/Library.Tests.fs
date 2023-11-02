@@ -1,12 +1,28 @@
 module JPackages.Common.Functions.Tests
 
+open System
+open System.IO
 open NUnit.Framework
 
 open JPackages.Common.Functions
 
-//[<SetUp>]
-//let Setup () =
-//    ()
+let xmlUnitTest1 = Directory.GetCurrentDirectory () + "\\XmlUnitTest1.xml"
+
+[<SetUp>]
+let Setup () =
+    let xmlUnitTest1Contents = """<?xml version="1.0" encoding="UTF-8"?>
+<Test>
+  <NoValue/>
+  <NoValue></NoValue>
+  <Value>0.0</Value>
+  <AnotherValue>1.0</AnotherValue>
+  <Node a="value">
+    <ChildValue>"Test"</ChildValue>
+  </Node>
+</Test>
+"""
+    use sw = new StreamWriter (xmlUnitTest1)
+    sw.Write xmlUnitTest1Contents
 
 [<Test>]
 [<Category("Rounding")>]
@@ -58,7 +74,7 @@ let Rounding_Round_RoundNumberTo2DPWithTrailingNines () =
 
 [<Test>]
 [<Category("Tuples Of Three")>]
-let TuplesOfThree_first_RetrievesFirstValueFromTuple () =
+let TuplesOfThree_First_RetrievesFirstValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12
 
@@ -70,7 +86,7 @@ let TuplesOfThree_first_RetrievesFirstValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Three")>]
-let TuplesOfThree_second_RetrievesSecondValueFromTuple () =
+let TuplesOfThree_Second_RetrievesSecondValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12
 
@@ -82,7 +98,7 @@ let TuplesOfThree_second_RetrievesSecondValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Three")>]
-let TuplesOfThree_third_RetrievesThirdValueFromTuple () =
+let TuplesOfThree_Third_RetrievesThirdValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12
 
@@ -94,7 +110,7 @@ let TuplesOfThree_third_RetrievesThirdValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_first_RetrievesFirstValueFromTuple () =
+let TuplesOfFour_First_RetrievesFirstValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
@@ -106,7 +122,7 @@ let TuplesOfFour_first_RetrievesFirstValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_second_RetrievesSecondValueFromTuple () =
+let TuplesOfFour_Second_RetrievesSecondValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
@@ -118,7 +134,7 @@ let TuplesOfFour_second_RetrievesSecondValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_third_RetrievesThirdValueFromTuple () =
+let TuplesOfFour_Third_RetrievesThirdValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
@@ -130,7 +146,7 @@ let TuplesOfFour_third_RetrievesThirdValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Four")>]
-let TuplesOfFour_fourth_RetrievesFourthValueFromTuple () =
+let TuplesOfFour_Fourth_RetrievesFourthValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13
 
@@ -142,7 +158,7 @@ let TuplesOfFour_fourth_RetrievesFourthValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Five")>]
-let TuplesOfFive_first_RetrievesFirstValueFromTuple () =
+let TuplesOfFive_First_RetrievesFirstValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13, 14
 
@@ -154,7 +170,7 @@ let TuplesOfFive_first_RetrievesFirstValueFromTuple () =
     
 [<Test>]
 [<Category("Tuples Of Five")>]
-let TuplesOfFive_second_RetrievesSecondValueFromTuple () =
+let TuplesOfFive_Second_RetrievesSecondValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13, 14
 
@@ -166,7 +182,7 @@ let TuplesOfFive_second_RetrievesSecondValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Five")>]
-let TuplesOfFive_third_RetrievesThirdValueFromTuple () =
+let TuplesOfFive_Third_RetrievesThirdValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13, 14
 
@@ -178,7 +194,7 @@ let TuplesOfFive_third_RetrievesThirdValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Five")>]
-let TuplesOfFive_fourth_RetrievesFourthValueFromTuple () =
+let TuplesOfFive_Fourth_RetrievesFourthValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13, 14
 
@@ -190,7 +206,7 @@ let TuplesOfFive_fourth_RetrievesFourthValueFromTuple () =
 
 [<Test>]
 [<Category("Tuples Of Five")>]
-let TuplesOfFive_fifth_RetrievesFifthValueFromTuple () =
+let TuplesOfFive_Fifth_RetrievesFifthValueFromTuple () =
     // Arrange
     let tuple = 10, 11, 12, 13, 14
 
@@ -199,3 +215,13 @@ let TuplesOfFive_fifth_RetrievesFifthValueFromTuple () =
 
     // Assert
     Assert.AreEqual(14, result)
+
+[<Test>]
+[<Category("Xml")>]
+let Xml_ReadFile_ReadsFileFromDisk () =
+    let actual = Xml.readFile xmlUnitTest1
+    
+    let node = (((actual |> List.head).Children |> List.head).Children |> List.head)
+    
+    Assert.AreEqual ("Test.Node", node.FullName)
+    Assert.True node.HasAttributes
