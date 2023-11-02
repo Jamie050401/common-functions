@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net45</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>A collection of functions to perform routine actions within dotnet applications.</Description>
+    <RunAnalyzersDuringBuild>True</RunAnalyzersDuringBuild>
+    <Title>Common Functions</Title>
+    <Authors>Jamie</Authors>
+    <PackageId>JPackages.Common</PackageId>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageVersion>0.0.3</PackageVersion>
+    <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
+    <PackageReleaseNotes>v0.0.3
+- Added support for basic file operations on .xml files</PackageReleaseNotes>
+    <RootNamespace>CommonFunctions</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Tailcalls>False</Tailcalls>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Domain.fs" />
+    <Compile Include="Library.fs" />
+    <Content Include="Docs\README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net45" Version="1.0.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Update="FSharp.Core" Version="4.7.2" />
+  </ItemGroup>
+
+</Project>
