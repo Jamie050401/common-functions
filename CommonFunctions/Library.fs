@@ -307,7 +307,6 @@ module Xml =
           Children = childNodes
           NodeType = xNavigator.NodeType }
     
-    // TODO - Need to fix attribute functionality
     let readFile (file : string) =
         let xDoc = XPathDocument file
         let xNavigator = xDoc.CreateNavigator ()
