@@ -25,7 +25,13 @@
 
   <ItemGroup>
     <Compile Include="Domain.fs" />
-    <Compile Include="Library.fs" />
+    <Compile Include="Tuples.fs" />
+    <Compile Include="String.fs" />
+    <Compile Include="Math.fs" />
+    <Compile Include="Arguments.fs" />
+    <Compile Include="File.fs" />
+    <Compile Include="Csv.fs" />
+    <Compile Include="Xml.fs" />
     <Content Include="Docs\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 

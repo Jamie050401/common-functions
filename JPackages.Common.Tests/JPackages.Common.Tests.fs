@@ -264,6 +264,6 @@ let Xml_WriteFile_WritesFileToDisk () =
            ]
            NodeType = XPathNodeType.Root }]
     
-    Xml.writeFile xmlUnitTest2 contents true
+    Xml.writeFile xmlUnitTest2 contents
     
     Assert.True (File.Exists xmlUnitTest2)

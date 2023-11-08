@@ -7,6 +7,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JPackages.Common", "JPackag
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JPackages.Common.Tests", "..\JPackages.Common.Tests\JPackages.Common.Tests.fsproj", "{574A957E-49DA-4B62-889F-4F8261B41649}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "JPackages.Common.Benchmarks", "..\JPackages.Common.Benchmarks\JPackages.Common.Benchmarks.fsproj", "{AEC3C725-E8F3-450B-AC84-32426A948014}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{574A957E-49DA-4B62-889F-4F8261B41649}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{574A957E-49DA-4B62-889F-4F8261B41649}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{574A957E-49DA-4B62-889F-4F8261B41649}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEC3C725-E8F3-450B-AC84-32426A948014}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEC3C725-E8F3-450B-AC84-32426A948014}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEC3C725-E8F3-450B-AC84-32426A948014}.Debug|Any CPU.ActiveCfg = Release|Any CPU
+		{AEC3C725-E8F3-450B-AC84-32426A948014}.Debug|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
