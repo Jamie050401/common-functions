@@ -42,3 +42,13 @@ type Collections () =
     [<Benchmark>]
     member this.ArrayConcat () =
         Array.concat [| arr; arr2; arr3 |]
+        
+    [<Benchmark>]
+    member this.ListFind () =
+        list |> List.find (fun elem -> elem = 99) |> ignore
+        list |> List.find (fun elem -> elem = 999)
+        
+    [<Benchmark>]
+    member this.ArrayFind () =
+        arr |> Array.find (fun elem -> elem = 99) |> ignore
+        arr |> Array.find (fun elem -> elem = 999)

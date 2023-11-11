@@ -1,50 +1,57 @@
 namespace JPackages.Common.Functions
 
-open JPackages.Common.Domain
-
 module Math =
-    open System
-    
-    let private rnd (``type`` : RoundingType) (precision : int) (number : float) =
-        let round number (precision : int) =
-            (floor ((abs number + 0.5 / 10.0 ** precision) * 10.0 ** precision)) / 10.0 ** precision
-            
-        let truncate number (precision : int) =
-            (floor (abs number * 10.0 ** precision)) / 10.0 ** precision
-        
-        let isRoundingReqd number (precision : int) =
-            abs number * 10.0 ** precision
-            |> fun value -> round (value - truncate value 0) 1 <> 0.0
-        
-        let roundUp number (precision : int) =
-            let isRoundingReqd = isRoundingReqd number precision
-            match isRoundingReqd with
-            | true  -> (ceil (abs number * 10.0 ** precision)) / 10.0 ** precision
-            | false -> number
-            
-        let roundDown number (precision : int) =
-            let isRoundingReqd = isRoundingReqd number precision
-            match isRoundingReqd with
-            | true  -> (floor (abs number * 10.0 ** precision)) / 10.0 ** precision
-            | false -> number
-        
-        match ``type`` with
-        | RoundingType.Decimal behaviour ->
-            match behaviour with
-            | RoundingBehaviour.Standard -> round number precision
-            | RoundingBehaviour.Truncate -> truncate number precision
-            | RoundingBehaviour.Up       -> roundUp number precision
-            | RoundingBehaviour.Down     -> roundDown number precision
-        | RoundingType.Significant behaviour ->
-            behaviour |> ignore
-            raise (NotImplementedException ())
-        |> fun rounded ->
-            match number < 0.0 with
-            | true  -> rounded * -1.0
-            | false -> rounded
-            
-    let round (precision : int) (number : float) =
-        rnd (RoundingType.Decimal RoundingBehaviour.Standard) precision number
-        
-    let truncate (precision : int) (number : float) =
-        rnd (RoundingType.Decimal RoundingBehaviour.Truncate) precision number
+    let private negate originalValue currentValue =
+        match originalValue < 0.0 with
+        | true  -> currentValue * -1.0
+        | false -> currentValue
+
+    let round (precision : int) number =
+        (floor ((abs number + 0.5 / 10.0 ** precision) * 10.0 ** precision)) / 10.0 ** precision |> negate number
+
+    let roundToSignificantFigures (precision : int) number =
+        match number = 0.0 with
+        | true  -> number
+        | false ->
+            let scale = 10.0 ** floor (log10 (abs number) + 1.0)
+            scale * round precision (number / scale)
+
+    let truncate (precision : int) number =
+        (floor (abs number * 10.0 ** precision)) / 10.0 ** precision |> negate number
+
+    let truncateToSignificantFigures (precision : int) number =
+        match number = 0.0 with
+        | true  -> number
+        | false ->
+            let scale = 10.0 ** floor (log10 (abs number) + 1.0)
+            scale * truncate precision (number / scale)
+
+    let isRoundingReqd (precision : int) number =
+        abs number * 10.0 ** precision
+        |> fun value -> round 1 (value - truncate 0 value) <> 0.0
+
+    let roundUp (precision : int) number =
+        let isRoundingReqd = isRoundingReqd precision number
+        match isRoundingReqd with
+        | true  -> (ceil (abs number * 10.0 ** precision)) / 10.0 ** precision |> negate number
+        | false -> number
+
+    let roundUpToSignificantFigures (precision : int) number =
+        match number = 0.0 with
+        | true  -> number
+        | false ->
+            let scale = 10.0 ** floor (log10 (abs number) + 1.0)
+            scale * roundUp precision (number / scale)
+
+    let roundDown (precision : int) number =
+        let isRoundingReqd = isRoundingReqd precision number
+        match isRoundingReqd with
+        | true  -> (floor (abs number * 10.0 ** precision)) / 10.0 ** precision |> negate number
+        | false -> number
+
+    let roundDownToSignificantFigures (precision : int) number =
+        match number = 0.0 with
+        | true  -> number
+        | false ->
+            let scale = 10.0 ** floor (log10 (abs number) + 1.0)
+            scale * roundDown precision (number / scale)

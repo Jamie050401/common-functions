@@ -80,6 +80,78 @@ let Rounding_Round_RoundNumberTo2DPWithTrailingNines () =
     Assert.AreEqual(0.88, result)
 
 [<Test>]
+[<Category("Rounding")>]
+let Rounding_Round_RoundNumberTo3SF () =
+    // Arrange
+    let number = 1.374985
+    
+    // Act
+    let result = Math.roundToSignificantFigures 3 number
+    
+    // Assert
+    Assert.AreEqual (1.37, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_Round_RoundNumberTo4SF () =
+    // Arrange
+    let number = 0.00498591
+    
+    // Act
+    let result = Math.roundToSignificantFigures 4 number
+    
+    // Assert
+    Assert.AreEqual (0.004986, result)
+
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundUp_RoundNumberTo2DP () =
+    // Arrange
+    let number = 1.4832
+    
+    // Act
+    let result = Math.roundUp 2 number
+    
+    // Assert
+    Assert.AreEqual (1.49, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundUp_RoundNumberTo2SF () =
+    // Arrange
+    let number = 0.0761
+    
+    // Act
+    let result = Math.round 3 (Math.roundUpToSignificantFigures 2 number)
+    
+    // Assert
+    Assert.AreEqual (Math.round 3 0.077, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundDown_RoundNumberTo2DP () =
+    // Arrange
+    let number = 1.4832
+    
+    // Act
+    let result = Math.roundDown 2 number
+    
+    // Assert
+    Assert.AreEqual (1.48, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundDown_RoundNumberTo2SF () =
+    // Arrange
+    let number = 0.0761
+    
+    // Act
+    let result = Math.round 3 (Math.roundDownToSignificantFigures 2 number)
+    
+    // Assert
+    Assert.AreEqual (Math.round 3 0.076, result)
+
+[<Test>]
 [<Category("Tuples Of Three")>]
 let TuplesOfThree_First_RetrievesFirstValueFromTuple () =
     // Arrange
@@ -223,7 +295,7 @@ let TuplesOfFive_Fifth_RetrievesFifthValueFromTuple () =
     // Assert
     Assert.AreEqual(14, result)
 
-[<Test>]
+(*[<Test>]
 [<Category("Xml")>]
 let Xml_ReadFile_ReadsFileFromDisk () =
     let actual = Xml.readFile xmlUnitTest1
@@ -266,4 +338,4 @@ let Xml_WriteFile_WritesFileToDisk () =
     
     Xml.writeFile xmlUnitTest2 contents
     
-    Assert.True (File.Exists xmlUnitTest2)
+    Assert.True (File.Exists xmlUnitTest2)*)

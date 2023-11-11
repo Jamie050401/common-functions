@@ -9,11 +9,6 @@ type ErrorType =
 // Error Codes:
 //   0 - Default
 //   1 - Unhandled
-//   2 - File already exists
-//   3 - File does not exist
-//   4 - File is empty
-//   5 - Not all values are unique
-//   6 - Invalid file type
 type Error =
     { Code : int
       Type : ErrorType
@@ -36,18 +31,6 @@ type ResponseWithValue<'a> =
     | Failure of Error
 
     static member Unhandled ex = Failure (Error.Unhandled ex)
-
-[<RequireQualifiedAccess>]
-type RoundingBehaviour =
-    | Standard
-    | Up
-    | Down
-    | Truncate
-
-[<RequireQualifiedAccess>]
-type RoundingType =
-    | Decimal of RoundingBehaviour
-    | Significant of RoundingBehaviour
 
 module Xml =
     open System.Xml.XPath

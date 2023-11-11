@@ -9,37 +9,12 @@ module private File =
         let contents = sr.ReadToEnd ()
         contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
 
-    //let readFileAsync (file : string) : string array =
-    //    use sr = new StreamReader (file)
-    //    
-    //    let readAsync () =
-    //        async {
-    //            return! sr.ReadToEndAsync () |> Async.AwaitTask
-    //        }
-    //    
-    //    readAsync ()
-    //    |> Async.RunSynchronously
-    //    |> fun contents ->
-    //        contents.Split ([| Environment.NewLine |], StringSplitOptions.RemoveEmptyEntries)
-
-    let write (file : string) (contents : string) =
+    let writeFile (file : string) (contents : string) =
         use sw = new StreamWriter (file)
+        sw.AutoFlush <- true
         contents |> sw.Write
     
-    let writeFile (file : string) (lines : string array) =
+    let writeLinesToFile (file : string) (lines : string array) =
         use sw = new StreamWriter (file)
+        sw.AutoFlush <- true
         lines |> Array.iter sw.WriteLine
-
-    //let writeFileAsync (file : string) (lines : string array) =
-    //    use sw = new StreamWriter (file)
-    //    
-    //    let writeAsync (line : string) =
-    //        async {
-    //            return! line |> sw.WriteLineAsync |> Async.AwaitTask   
-    //        }
-    //    
-    //    lines
-    //    |> Array.map writeAsync
-    //    |> Async.Sequential
-    //    |> Async.RunSynchronously
-    //    |> ignore

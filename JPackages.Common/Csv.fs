@@ -28,8 +28,7 @@ module Csv =
         match File.Exists file with
         | true ->
             let contents = File.readFile file
-            contents
-            |> Array.Parallel.map split
+            contents |> Array.Parallel.map split
         | false ->
             Array.empty
 
@@ -45,4 +44,4 @@ module Csv =
         | true  -> File.Delete file
         | false -> ()
 
-        File.writeFile file (getLines contents)
+        File.writeLinesToFile file (getLines contents)
