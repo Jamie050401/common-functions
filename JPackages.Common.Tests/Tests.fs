@@ -2,6 +2,7 @@ module JPackages.Common.Functions.Tests
 
 open System
 open System.IO
+open System.Xml
 open System.Xml.XPath
 open NUnit.Framework
 
@@ -9,11 +10,8 @@ open JPackages.Common.Domain
 open JPackages.Common.Functions
 
 let xmlUnitTest1 = Directory.GetCurrentDirectory () + "\\XmlUnitTest1.xml"
-let xmlUnitTest2 = Directory.GetCurrentDirectory () + "\\XmlUnitTest2.xml"
 
-[<SetUp>]
-let Setup () =
-    let xmlUnitTest1Contents = """<?xml version="1.0" encoding="UTF-8"?>
+let xmlUnitTest1Contents = """<?xml version="1.0" encoding="UTF-8"?>
 <Test>
   <NoValue/>
   <NoValue></NoValue>
@@ -24,6 +22,11 @@ let Setup () =
   </Node>
 </Test>
 """
+
+let xmlUnitTest2 = Directory.GetCurrentDirectory () + "\\XmlUnitTest2.xml"
+
+[<SetUp>]
+let Setup () =
     use sw = new StreamWriter (xmlUnitTest1)
     sw.Write xmlUnitTest1Contents
     
@@ -295,47 +298,43 @@ let TuplesOfFive_Fifth_RetrievesFifthValueFromTuple () =
     // Assert
     Assert.AreEqual(14, result)
 
-(*[<Test>]
+[<Test>]
 [<Category("Xml")>]
 let Xml_ReadFile_ReadsFileFromDisk () =
+    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Test><Node a=value><ChildValue>\"Test\"</ChildValue></Node><AnotherValue>1.0</AnotherValue><Value>0.0</Value><NoValue></NoValue><NoValue></NoValue></Test>"
+    
     let actual = Xml.readFile xmlUnitTest1
     
-    let node = (((actual |> List.head).Children |> List.head).Children |> List.head)
-    
-    Assert.AreEqual ("Test.Node", node.FullName)
-    Assert.True node.HasAttributes
+    Assert.AreEqual (expected, actual.ToString true)
     
 [<Test>]
 [<Category("Xml")>]
 let Xml_WriteFile_WritesFileToDisk () =
-    let (contents : Xml.Node list) =
-        [{ Namespace = ""
-           NamespacePrefix = ""
-           FullName = ""
-           LocalName = ""
-           Value = ""
-           Attributes = Map.empty
-           Children = [
-               { Namespace = ""
-                 NamespacePrefix = ""
-                 FullName = "Test"
-                 LocalName = "Test"
-                 Value = ""
-                 Attributes = Map.empty
-                 Children = [
-                     { Namespace = ""
-                       NamespacePrefix = ""
-                       FullName = "Test.Value"
-                       LocalName = "Value"
-                       Value = "0.0"
-                       Attributes = Map [ "attribute1", "\"1.0\""; "attribute2", "\"2.0\"" ]
-                       Children = List.empty
-                       NodeType = XPathNodeType.Element }
-                 ]
-                 NodeType = XPathNodeType.Element }
-           ]
-           NodeType = XPathNodeType.Root }]
+    let (contents : Xml.Node) =
+        { Namespace = ""
+          NamespacePrefix = ""
+          LocalName = "Test"
+          Value = ""
+          Attributes = Map.empty
+          Children = [
+              { Namespace = ""
+                NamespacePrefix = ""
+                LocalName = "Child"
+                Value = ""
+                Attributes = Map.empty
+                Children = [
+                    { Namespace = ""
+                      NamespacePrefix = ""
+                      LocalName = "Value"
+                      Value = "0.0"
+                      Attributes = Map [ "attribute1", "\"1.0\""; "attribute2", "\"2.0\"" ]
+                      Children = List.empty
+                      NodeType = XmlNodeType.Element }
+                ]
+                NodeType = XmlNodeType.Element }
+          ]
+          NodeType = XmlNodeType.Element }
     
     Xml.writeFile xmlUnitTest2 contents
     
-    Assert.True (File.Exists xmlUnitTest2)*)
+    Assert.True (File.Exists xmlUnitTest2)
