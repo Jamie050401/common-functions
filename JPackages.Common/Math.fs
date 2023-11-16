@@ -31,8 +31,7 @@ module Math =
         |> fun value -> round 1 (value - truncate 0 value) <> 0.0
 
     let roundUp (precision : int) number =
-        let isRoundingReqd = isRoundingReqd precision number
-        match isRoundingReqd with
+        match isRoundingReqd precision number with
         | true  -> (ceil (abs number * 10.0 ** precision)) / 10.0 ** precision |> negate number
         | false -> number
 
@@ -44,8 +43,7 @@ module Math =
             scale * roundUp precision (number / scale)
 
     let roundDown (precision : int) number =
-        let isRoundingReqd = isRoundingReqd precision number
-        match isRoundingReqd with
+        match isRoundingReqd precision number with
         | true  -> (floor (abs number * 10.0 ** precision)) / 10.0 ** precision |> negate number
         | false -> number
 
