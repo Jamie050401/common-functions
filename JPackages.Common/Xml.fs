@@ -25,14 +25,6 @@ module Xml =
           Children = children
           NodeType = element.NodeType } : Xml.Node
 
-    let private read (file : string) =
-        match File.Exists file with
-        | true ->
-            let xDoc = XDocument.Load file
-            xDoc.Elements ()
-        | false ->
-            raise (FileNotFoundException ())
-
     let rec private readChildren (nodes : Map<int, Xml.Node list>) (index : int) (parents : Map<int, XElement>) (elements : Map<int, XElement list>) : Xml.Node =
         let children = elements.[index]
         match children with
@@ -56,16 +48,15 @@ module Xml =
                 let currentNodes = try nodes.[index] with | _ -> List.empty
                 let newNodes = nodes |> Map.add index (constructNode List.empty child :: currentNodes)
                 readChildren newNodes index parents newElements
-    
+
     let readFile (file : string) =
-        let elements = read file
-        elements |> Seq.map (fun element ->
+        let xDoc = XDocument.Load file
+        xDoc.Elements () |> Seq.head |> fun element ->
             match element.HasElements with
             | true ->
                 readChildren Map.empty 0 (Map [ 0, element ]) (Map [ 0, element.Elements () |> List.ofSeq ])
             | false ->
-                constructNode List.empty element)
-        |> Seq.head
+                constructNode List.empty element
         
     let tryReadFile (file : string) =
         try
