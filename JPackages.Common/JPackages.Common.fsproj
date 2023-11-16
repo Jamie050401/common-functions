@@ -15,7 +15,8 @@
     <PackageVersion>0.0.4</PackageVersion>
     <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
     <PackageReleaseNotes>v0.0.4
-- ...</PackageReleaseNotes>
+- Updated XML logic
+- Added logic to support rounding to significant figures</PackageReleaseNotes>
     <RootNamespace>CommonFunctions</RootNamespace>
   </PropertyGroup>
 
