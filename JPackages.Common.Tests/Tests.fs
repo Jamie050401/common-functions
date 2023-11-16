@@ -2,6 +2,7 @@ module JPackages.Common.Functions.Tests
 
 open System
 open System.IO
+open System.Xml
 open System.Xml.XPath
 open NUnit.Framework
 
@@ -9,11 +10,8 @@ open JPackages.Common.Domain
 open JPackages.Common.Functions
 
 let xmlUnitTest1 = Directory.GetCurrentDirectory () + "\\XmlUnitTest1.xml"
-let xmlUnitTest2 = Directory.GetCurrentDirectory () + "\\XmlUnitTest2.xml"
 
-[<SetUp>]
-let Setup () =
-    let xmlUnitTest1Contents = """<?xml version="1.0" encoding="UTF-8"?>
+let xmlUnitTest1Contents = """<?xml version="1.0" encoding="UTF-8"?>
 <Test>
   <NoValue/>
   <NoValue></NoValue>
@@ -24,6 +22,11 @@ let Setup () =
   </Node>
 </Test>
 """
+
+let xmlUnitTest2 = Directory.GetCurrentDirectory () + "\\XmlUnitTest2.xml"
+
+[<SetUp>]
+let Setup () =
     use sw = new StreamWriter (xmlUnitTest1)
     sw.Write xmlUnitTest1Contents
     
@@ -78,6 +81,78 @@ let Rounding_Round_RoundNumberTo2DPWithTrailingNines () =
 
     // Assert
     Assert.AreEqual(0.88, result)
+
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_Round_RoundNumberTo3SF () =
+    // Arrange
+    let number = 1.374985
+    
+    // Act
+    let result = Math.roundToSignificantFigures 3 number
+    
+    // Assert
+    Assert.AreEqual (1.37, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_Round_RoundNumberTo4SF () =
+    // Arrange
+    let number = 0.00498591
+    
+    // Act
+    let result = Math.roundToSignificantFigures 4 number
+    
+    // Assert
+    Assert.AreEqual (0.004986, result)
+
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundUp_RoundNumberTo2DP () =
+    // Arrange
+    let number = 1.4832
+    
+    // Act
+    let result = Math.roundUp 2 number
+    
+    // Assert
+    Assert.AreEqual (1.49, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundUp_RoundNumberTo2SF () =
+    // Arrange
+    let number = 0.0761
+    
+    // Act
+    let result = Math.round 3 (Math.roundUpToSignificantFigures 2 number)
+    
+    // Assert
+    Assert.AreEqual (Math.round 3 0.077, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundDown_RoundNumberTo2DP () =
+    // Arrange
+    let number = 1.4832
+    
+    // Act
+    let result = Math.roundDown 2 number
+    
+    // Assert
+    Assert.AreEqual (1.48, result)
+    
+[<Test>]
+[<Category("Rounding")>]
+let Rounding_RoundDown_RoundNumberTo2SF () =
+    // Arrange
+    let number = 0.0761
+    
+    // Act
+    let result = Math.round 3 (Math.roundDownToSignificantFigures 2 number)
+    
+    // Assert
+    Assert.AreEqual (Math.round 3 0.076, result)
 
 [<Test>]
 [<Category("Tuples Of Three")>]
@@ -226,44 +301,40 @@ let TuplesOfFive_Fifth_RetrievesFifthValueFromTuple () =
 [<Test>]
 [<Category("Xml")>]
 let Xml_ReadFile_ReadsFileFromDisk () =
+    let expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><Test><Node a=value><ChildValue>\"Test\"</ChildValue></Node><AnotherValue>1.0</AnotherValue><Value>0.0</Value><NoValue></NoValue><NoValue></NoValue></Test>"
+    
     let actual = Xml.readFile xmlUnitTest1
     
-    let node = (((actual |> List.head).Children |> List.head).Children |> List.head)
-    
-    Assert.AreEqual ("Test.Node", node.FullName)
-    Assert.True node.HasAttributes
+    Assert.AreEqual (expected, actual.ToString true)
     
 [<Test>]
 [<Category("Xml")>]
 let Xml_WriteFile_WritesFileToDisk () =
-    let (contents : Xml.Node list) =
-        [{ Namespace = ""
-           NamespacePrefix = ""
-           FullName = ""
-           LocalName = ""
-           Value = ""
-           Attributes = Map.empty
-           Children = [
-               { Namespace = ""
-                 NamespacePrefix = ""
-                 FullName = "Test"
-                 LocalName = "Test"
-                 Value = ""
-                 Attributes = Map.empty
-                 Children = [
-                     { Namespace = ""
-                       NamespacePrefix = ""
-                       FullName = "Test.Value"
-                       LocalName = "Value"
-                       Value = "0.0"
-                       Attributes = Map [ "attribute1", "\"1.0\""; "attribute2", "\"2.0\"" ]
-                       Children = List.empty
-                       NodeType = XPathNodeType.Element }
-                 ]
-                 NodeType = XPathNodeType.Element }
-           ]
-           NodeType = XPathNodeType.Root }]
+    let (contents : Xml.Node) =
+        { Namespace = ""
+          NamespacePrefix = ""
+          LocalName = "Test"
+          Value = ""
+          Attributes = Map.empty
+          Children = [
+              { Namespace = ""
+                NamespacePrefix = ""
+                LocalName = "Child"
+                Value = ""
+                Attributes = Map.empty
+                Children = [
+                    { Namespace = ""
+                      NamespacePrefix = ""
+                      LocalName = "Value"
+                      Value = "0.0"
+                      Attributes = Map [ "attribute1", "\"1.0\""; "attribute2", "\"2.0\"" ]
+                      Children = List.empty
+                      NodeType = XmlNodeType.Element }
+                ]
+                NodeType = XmlNodeType.Element }
+          ]
+          NodeType = XmlNodeType.Element }
     
-    Xml.writeFile xmlUnitTest2 contents true
+    Xml.writeFile xmlUnitTest2 contents
     
     Assert.True (File.Exists xmlUnitTest2)

@@ -12,10 +12,11 @@
     <PackageId>JPackages.Common</PackageId>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageVersion>0.0.3</PackageVersion>
+    <PackageVersion>0.0.4</PackageVersion>
     <RepositoryUrl>https://github.com/Jamie050401/CommonFunctions</RepositoryUrl>
-    <PackageReleaseNotes>v0.0.3
-- Added support for basic file operations on .xml files</PackageReleaseNotes>
+    <PackageReleaseNotes>v0.0.4
+- Updated XML logic
+- Added logic to support rounding to significant figures</PackageReleaseNotes>
     <RootNamespace>CommonFunctions</RootNamespace>
   </PropertyGroup>
 
@@ -25,7 +26,13 @@
 
   <ItemGroup>
     <Compile Include="Domain.fs" />
-    <Compile Include="Library.fs" />
+    <Compile Include="Tuples.fs" />
+    <Compile Include="String.fs" />
+    <Compile Include="Math.fs" />
+    <Compile Include="Arguments.fs" />
+    <Compile Include="File.fs" />
+    <Compile Include="Csv.fs" />
+    <Compile Include="Xml.fs" />
     <Content Include="Docs\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
