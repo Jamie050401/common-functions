@@ -1,12 +1,11 @@
 module JPackages.Common.Functions.Tests
 
+open JPackages.Common.Domain
+open JPackages.Common.Functions
+open NUnit.Framework
 open System
 open System.IO
 open System.Xml
-open NUnit.Framework
-
-open JPackages.Common.Domain
-open JPackages.Common.Functions
 
 let xmlUnitTest1 = Directory.GetCurrentDirectory () + "\\XmlUnitTest1.xml"
 
@@ -336,3 +335,25 @@ let Xml_WriteFile_WritesFileToDisk () =
     Xml.writeFile xmlUnitTest2 contents
 
     Assert.True (File.Exists xmlUnitTest2)
+
+[<Test>]
+[<Category("List")>]
+let List_FilterI_FiltersList () =
+    let list = [ 0; 1; 2; 3; 4; 5; 6; 7; 8; 9 ]
+    let result = list |> List.filteri (fun index element -> index > 5)
+    Assert.AreEqual ([ 6; 7; 8; 9 ], result)
+
+[<Test>]
+[<Category("List")>]
+let List_FoldI_FoldsList () =
+    let list = [ 0; 1; 2; 3; 4; 5; 6; 7; 8; 9 ]
+
+    let result =
+        list
+        |> (""
+            |> List.foldi (fun index acc element ->
+                match index > 5 with
+                | true -> acc + string element
+                | false -> acc))
+
+    Assert.AreEqual ("6789", result)
