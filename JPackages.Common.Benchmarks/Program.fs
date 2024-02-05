@@ -5,5 +5,5 @@ open BenchmarkDotNet.Running
 
 [<EntryPoint>]
 let main argv =
-    BenchmarkRunner.Run<Collections>() |> ignore
+    BenchmarkRunner.Run<Collections> () |> ignore
     0

@@ -13,7 +13,7 @@ module private File =
         use sw = new StreamWriter (file)
         sw.AutoFlush <- true
         contents |> sw.Write
-    
+
     let writeLinesToFile (file : string) (lines : string array) =
         use sw = new StreamWriter (file)
         sw.AutoFlush <- true
