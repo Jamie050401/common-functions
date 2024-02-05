@@ -1,5 +1,8 @@
 ﻿namespace JPackages.Common.Domain
 
+open System
+open System.Xml
+
 type ErrorType =
     | Unhandled
     | IO
@@ -42,9 +45,6 @@ type ResponseWithValue<'a> =
     static member Unhandled ex = Failure (Error.Unhandled ex)
 
 module Xml =
-    open System
-    open System.Xml
-
     type Node =
         { Namespace : string
           NamespacePrefix : string

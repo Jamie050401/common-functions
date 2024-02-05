@@ -1,9 +1,9 @@
 namespace JPackages.Common.Functions
 
-module Csv =
-    open System
-    open System.IO
+open System
+open System.IO
 
+module Csv =
     let private split (str : string) =
         str.ToCharArray ()
         |> ((false, "", Array.empty)

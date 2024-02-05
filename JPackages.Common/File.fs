@@ -1,9 +1,9 @@
 namespace JPackages.Common.Functions
 
-module private File =
-    open System
-    open System.IO
+open System
+open System.IO
 
+module private File =
     let readFile (file : string) : string array =
         use sr = new StreamReader (file)
         let contents = sr.ReadToEnd ()

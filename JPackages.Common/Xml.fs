@@ -1,11 +1,9 @@
 ﻿namespace JPackages.Common.Functions
 
+open JPackages.Common.Domain
+open System.Xml.Linq
+
 module Xml =
-    open System.IO
-    open System.Xml.Linq
-
-    open JPackages.Common.Domain
-
     let private getValue (element : XElement) =
         match element.HasElements with
         | true ->
